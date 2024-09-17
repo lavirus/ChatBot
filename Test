@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Chatbot Integration</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.151.3/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.151.3/examples/js/loaders/GLTFLoader.js"></script>
+
+    <script>
+        // 1. Grundläggande Three.js setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 2. Ladda din 3D-modell (GLB, FBX, VRM)
+        const loader = new THREE.GLTFLoader();
+        loader.load('path_to_your_model.glb', function(gltf) {
+            scene.add(gltf.scene);
+        }, undefined, function(error) {
+            console.error(error);
+        });
+
+        // 3. Placera kameran och ljus
+        camera.position.z = 5;
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 5, 5).normalize();
+        scene.add(light);
+
+        // 4. Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // 5. Placeholder för chatbot-funktionalitet
+        // Chatbot integration med OpenAI GPT-4 eller Claude API
+        async function getChatbotResponse(message) {
+            const response = await fetch("https://api.(klistra in ditt api här)", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer (din API-nyckel)"
+                },
+                body: JSON.stringify({
+                    prompt: message,
+                    max_tokens: 150
+                })
+            });
+            const data = await response.json();
+            return data.choices[0].text;
+        }
+
+        // 6. Text-till-tal integration (klistra in ditt text-till-tal-API)
+        function speakText(text) {
+            // Koppla till ditt TTS API, t.ex. ElevenLabs
+            fetch('https://api.(klistra in ditt tts-api här)', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer (din API-nyckel)'
+                },
+                body: JSON.stringify({
+                    text: text,
+                    voice: "Hannahs unika röst"
+                })
+            }).then(response => response.blob()).then(blob => {
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                audio.play();
+            });
+        }
+
+        // 7. Sammanlänkning av chatbot och röst
+        async function handleMessage(message) {
+            const responseText = await getChatbotResponse(message);
+            speakText(responseText);
+        }
+
+        // Testmeddelande för att trigga chatbot och TTS
+        handleMessage("Hello, who are you?");
+    </script>
+</body>
+</html>
